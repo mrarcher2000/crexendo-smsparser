@@ -1,0 +1,29 @@
+{
+  "name": "crexendo-smsparser",
+  "version": "1.0.0",
+  "description": "Parse NS API responses into readable SMS History",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrarcher2000/crexendo-smsparser.git"
+  },
+  "keywords": [],
+  "author": "Archer Nicholson CrexendoVIP",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrarcher2000/crexendo-smsparser/issues"
+  },
+  "homepage": "https://github.com/mrarcher2000/crexendo-smsparser#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "jquery": "npm:jQuery@^1.7.4",
+    "jQuery": "^1.7.4",
+    "path": "^0.12.7"
+  }
+}
