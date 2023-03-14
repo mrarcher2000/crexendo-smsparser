@@ -62,9 +62,36 @@ var createConversationLinks = function(conversationList) {
   }
 }
 
+
+const msgDataNewWindow = function(messageXMLData) {
+
+  // var textNode = ``;
+  // let div = document.createElement("div");
+
+// WHERE I LEFT OFF ======== NEED TO LOG THE MESSAGE DATA THEN WRITE DOCUMENT IN NEW WINDOW
+
+  let messageIDs = messageXMLData.getElementsByTagName("id");
+  for (let i=0; i < messageIDs.length; i++) {
+    let timestamp = messageXMLData[i].textContent;
+
+    console.log(timestamp);
+    // let timestampHTML = document.createTextNode(timestamp);
+    // div.appendChild(timestampHTML);
+  }
+
+  // console.log(div);
+}
+
+
 msghttp.onreadystatechange = function() {
   if (this.readyState == 4 && this.status == 200) {
     console.log(msghttp.responseXML);
+
+    let messageInfo = msghttp.responseXML;
+    
+    msgDataNewWindow(messageInfo);
+    // let msgNewWindow = window.open("", "", '_blank');
+    // msgNewWindow.document.write(msghttp.responseXML);
   } 
 }
 
@@ -72,7 +99,7 @@ var goToConversation = function(session_id) {
   console.log(session_id);
   let msgReqBody = `{"domain": "${domainInput.value}", "user":"${userInput.value}", "session_id": "${session_id}", "limit":"1000"}`;
   msghttp.open("POST", "https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=message&action=read");
-  msghttp.setRequestHeader("Authorization", "Bearer 6a81a55da23303dc0e5cb2252ce27856");
+  msghttp.setRequestHeader("Authorization", "Bearer 30c92b91af2e1dde27dc851c1aaba5c8");
   msghttp.send(msgReqBody);
 }
 
@@ -93,7 +120,7 @@ xhttp.onreadystatechange = function() {
 
 function fetchData() {
   xhttp.open("POST", url);
-  xhttp.setRequestHeader("Authorization", "Bearer 6a81a55da23303dc0e5cb2252ce27856");
+  xhttp.setRequestHeader("Authorization", "Bearer 30c92b91af2e1dde27dc851c1aaba5c8");
   xhttp.send(reqbody);
 }
 
