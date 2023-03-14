@@ -35,7 +35,7 @@ function parseViaSession(xmlData) {
     // let last_mesg = parent.getElementsByTagName("last_mesg").textContent;
     appendDataElement.insertAdjacentHTML("afterend", 
       `<div>
-      <button id="searchresult[${i}]" type="button" class="btn btn-secondary btn-lg btn-block">${remote} : Last Message: ${last_mesg} at ${last_timestamp}</button>
+      <button id="searchresult${i}" type="button" class="btn btn-secondary btn-lg btn-block">${remote} : Last Message: ${last_mesg} at ${last_timestamp}</button>
       <h4>${remote} : <span>Last Message: ${last_mesg} at ${last_timestamp}</span></h4>
       <br />`
     );
@@ -48,9 +48,14 @@ function parseViaSession(xmlData) {
 }
 
 var createConversationLinks = function(conversationList) {
-  for (i=0;i<conversationList.length;i++) {
-    document.querySelector(`#searchresult[${i}]`).addEventListener("click", (e) => {
+
+  // let conversationValues = conversationList.values();
+
+
+  for (let i=0; i<conversationList.length;i++) {
+    document.querySelector(`#searchresult${i}`).addEventListener("click", (e) => {
       e.preventDefault();
+      // console.log(conversationList[i][0]);
       goToConversation(conversationList[i]);
     });
 
@@ -60,13 +65,14 @@ var createConversationLinks = function(conversationList) {
 msghttp.onreadystatechange = function() {
   if (this.readyState == 4 && this.status == 200) {
     console.log(msghttp.responseXML);
-  }
+  } 
 }
 
 var goToConversation = function(session_id) {
-  let msgReqBody = `{"domain": "${domainInput}", "user":"${userInput}", "session_id": "${session_id}", "limit":"1000"}`;
+  console.log(session_id);
+  let msgReqBody = `{"domain": "${domainInput.value}", "user":"${userInput.value}", "session_id": "${session_id}", "limit":"1000"}`;
   msghttp.open("POST", "https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=message&action=read");
-  msghttp.setRequestHeader("Authorization", "Bearer d2375cb0aed7615cee01c29d9833651f");
+  msghttp.setRequestHeader("Authorization", "Bearer 6a81a55da23303dc0e5cb2252ce27856");
   msghttp.send(msgReqBody);
 }
 
@@ -87,7 +93,7 @@ xhttp.onreadystatechange = function() {
 
 function fetchData() {
   xhttp.open("POST", url);
-  xhttp.setRequestHeader("Authorization", "Bearer d2375cb0aed7615cee01c29d9833651f");
+  xhttp.setRequestHeader("Authorization", "Bearer 6a81a55da23303dc0e5cb2252ce27856");
   xhttp.send(reqbody);
 }
 
