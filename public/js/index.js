@@ -96,6 +96,7 @@ const msgDataNewWindow = function(messageXMLData) {
     let status = specifiedMsgXML.getElementsByTagName("status")[i].textContent;
     let direction = specifiedMsgXML.getElementsByTagName("direction")[i].textContent;
 
+    // TO DO: CREATE HTML FOR DATA ********************************************************************************
     
     let appendHTMLData = `
     <div>
