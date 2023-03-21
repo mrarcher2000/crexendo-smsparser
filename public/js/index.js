@@ -67,7 +67,7 @@ const msgDataNewWindow = function(messageXMLData) {
   // console.log('function msgDataNewWindow() has retrieved messageXMLData as: \n' + messageXMLData.firstChild.textContent);
   let specifiedMsgXML = messageXMLData.firstChild;
 
-  let msdDataHTML = 
+  let msgDataHTML = 
   `
   <!DOCTYPE html>
   <head>
@@ -78,9 +78,6 @@ const msgDataNewWindow = function(messageXMLData) {
     <title>Message Data</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
-
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>0
   `;
 
   let messageIDs = specifiedMsgXML.getElementsByTagName("id");
@@ -91,7 +88,11 @@ const msgDataNewWindow = function(messageXMLData) {
     let from_uid = specifiedMsgXML.getElementsByTagName("from_uid")[i].textContent;
     let term_num = specifiedMsgXML.getElementsByTagName("term_num")[i].textContent;
     let term_uid = specifiedMsgXML.getElementsByTagName("term_uid")[i].textContent;
-    let remotepath = specifiedMsgXML.getElementsByTagName("remotepath")[i].textContent;
+    let remotepath = ''
+    if (specifiedMsgXML.getElementsByTagName("remotepath")[i]) {
+      remotepath = specifiedMsgXML.getElementsByTagName("remotepath")[i].textContent;
+    } else {remotepath = ``;}
+    // let remotepath = specifiedMsgXML.getElementsByTagName("remotepath")[i].textContent;
     let msgtext = specifiedMsgXML.getElementsByTagName("text")[i].textContent;
     let status = specifiedMsgXML.getElementsByTagName("status")[i].textContent;
     let direction = specifiedMsgXML.getElementsByTagName("direction")[i].textContent;
@@ -99,16 +100,38 @@ const msgDataNewWindow = function(messageXMLData) {
     // TO DO: CREATE HTML FOR DATA ********************************************************************************
     
     let appendHTMLData = `
-    <div>
-      <p>Time
+    <div class="card text-break">
+    <div class="cart-body">
+      <p class="text-start fs-3 fw-semibold">${from_num ? `${from_num}` : `${from_uid}`} to ${term_num ? `${term_num}` : `${term_uid}`}</p>
+      <p class="fs-4 fw-normal">${msgtext} <span class="fw-light">${timestamp}</span></p>
+      ${() => {
+        if (remotepath == '') {return ``} else {return `${remotepath}`}
+      }}
     </div>
+    </div> </br>
     `;
-    console.log(`timestamp`);
+    msgDataHTML += appendHTMLData;
     // let timestampHTML = document.createTextNode(timestamp);
     // div.appendChild(timestampHTML);
   }
 
-  // console.log(div);
+  console.log(msgDataHTML);
+  var win = window.open("", "_blank", "width=100%, height=100%, top=100%, left=100%");
+  var winScript = document.createElement('script');
+  var winScript2 = document.createElement('script');
+  winScript.src = "https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js";
+  winScript.integrity = "sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q";
+  winScript.crossOrigin = "anonymous";
+  winScript2.src = "https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js";
+  winScript2.integrity = "sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl";
+  winScript2.crossOrigin = "anonymous";
+  // var winStylesheet = document.createElement('link');
+  // winStylesheet.rel = 'stylesheet';
+  // winStylesheet.href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css'
+  win.document.body.innerHTML = msgDataHTML;
+  win.appendChild(winScript);
+  win.appendChild(winScript2);
+
 }
 
 
@@ -128,7 +151,7 @@ var goToConversation = function(session_id) {
   console.log(session_id);
   let msgReqBody = `{"domain": "${domainInput.value}", "user":"${userInput.value}", "session_id": "${session_id}", "limit":"1000"}`;
   msghttp.open("POST", "https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=message&action=read");
-  msghttp.setRequestHeader("Authorization", "Bearer 828c5a1fda4d42bbd9d80c458f5c2ec1");
+  msghttp.setRequestHeader("Authorization", "Bearer 0ccf6431b753fd1982f3794e5511aec8");
   msghttp.send(msgReqBody);
 }
 
@@ -149,7 +172,7 @@ xhttp.onreadystatechange = function() {
 
 function fetchData() {
   xhttp.open("POST", url);
-  xhttp.setRequestHeader("Authorization", "Bearer 828c5a1fda4d42bbd9d80c458f5c2ec1");
+  xhttp.setRequestHeader("Authorization", "Bearer 0ccf6431b753fd1982f3794e5511aec8");
   xhttp.send(reqbody);
 }
 
