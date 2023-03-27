@@ -63,6 +63,10 @@ var createConversationLinks = function(conversationList) {
 }
 
 
+const checkRemotepath = function(remotepath) {
+  if (remotepath == '') {return ``} else {return `Link to Media: ${remotepath}`}
+};
+
 const msgDataNewWindow = function(messageXMLData) {
   // console.log('function msgDataNewWindow() has retrieved messageXMLData as: \n' + messageXMLData.firstChild.textContent);
   let specifiedMsgXML = messageXMLData.firstChild;
@@ -89,24 +93,21 @@ const msgDataNewWindow = function(messageXMLData) {
     let term_num = specifiedMsgXML.getElementsByTagName("term_num")[i].textContent;
     let term_uid = specifiedMsgXML.getElementsByTagName("term_uid")[i].textContent;
     let remotepath = ''
-    if (specifiedMsgXML.getElementsByTagName("remotepath")[i]) {
-      remotepath = specifiedMsgXML.getElementsByTagName("remotepath")[i].textContent;
+    if (msgtype == "mms") {
+      let tempXMLparent = specifiedMsgXML.getElementsByTagName("message")[i];
+      remotepath = tempXMLparent.getElementsByTagName("remotepath")[0].textContent;
     } else {remotepath = ``;}
-    // let remotepath = specifiedMsgXML.getElementsByTagName("remotepath")[i].textContent;
+
     let msgtext = specifiedMsgXML.getElementsByTagName("text")[i].textContent;
     let status = specifiedMsgXML.getElementsByTagName("status")[i].textContent;
     let direction = specifiedMsgXML.getElementsByTagName("direction")[i].textContent;
-
-    // TO DO: CREATE HTML FOR DATA ********************************************************************************
     
     let appendHTMLData = `
     <div class="card text-break">
     <div class="cart-body">
       <p class="text-start fs-3 fw-semibold">${from_num ? `${from_num}` : `${from_uid}`} to ${term_num ? `${term_num}` : `${term_uid}`}</p>
       <p class="fs-4 fw-normal">${msgtext} <span class="fw-light">${timestamp}</span></p>
-      ${() => {
-        if (remotepath == '') {return ``} else {return `${remotepath}`}
-      }}
+      ${checkRemotepath(remotepath)}
     </div>
     </div> </br>
     `;
@@ -129,8 +130,9 @@ const msgDataNewWindow = function(messageXMLData) {
   // winStylesheet.rel = 'stylesheet';
   // winStylesheet.href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css'
   win.document.body.innerHTML = msgDataHTML;
-  win.appendChild(winScript);
-  win.appendChild(winScript2);
+
+  // win.appendChild(winScript);
+  // win.appendChild(winScript2);
 
 }
 
@@ -151,7 +153,7 @@ var goToConversation = function(session_id) {
   console.log(session_id);
   let msgReqBody = `{"domain": "${domainInput.value}", "user":"${userInput.value}", "session_id": "${session_id}", "limit":"1000"}`;
   msghttp.open("POST", "https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=message&action=read");
-  msghttp.setRequestHeader("Authorization", "Bearer 0ccf6431b753fd1982f3794e5511aec8");
+  msghttp.setRequestHeader("Authorization", "Bearer 678dae1ef391e82ff73583219608a340");
   msghttp.send(msgReqBody);
 }
 
@@ -172,7 +174,7 @@ xhttp.onreadystatechange = function() {
 
 function fetchData() {
   xhttp.open("POST", url);
-  xhttp.setRequestHeader("Authorization", "Bearer 0ccf6431b753fd1982f3794e5511aec8");
+  xhttp.setRequestHeader("Authorization", "Bearer 678dae1ef391e82ff73583219608a340");
   xhttp.send(reqbody);
 }
 
