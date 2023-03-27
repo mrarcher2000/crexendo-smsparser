@@ -10,6 +10,26 @@ let url = 'https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=conversatio
 
 var reqbody = '{"domain":"Archer_Nicholson_Lab","user":"100"}';
 
+var ns_access = "";
+window.onload = function() {
+  const response = fetch(`https://crexendo-core-021-las.cls.iaas.run/ns-api/oauth2/token/?grant_type=password&client_id=archertest&client_secret=90056b1f11f8c87fff30fd1b5acafd04&username=anicholson@crexendo.com&password=Crexendo2022!`, {
+    method: "POST",
+  })
+  .then((response) => response.json())
+  .then((response) => {
+    ns_access = response.access_token;
+    console.log('Access Token Received from Netsapiens Server');
+  })
+};
+
+var checkNSAccess = function(NSAccess) {
+  if (NSAccess == "") {
+    location.reload();
+  } else {
+    return NSAccess;
+  }
+}
+
 function checkData() {
   console.log(domainInput.value + userInput.value);
   reqbody = `{"domain": "${domainInput.value}", "user":"${userInput.value}"}`;
@@ -31,8 +51,6 @@ function parseViaSession(xmlData) {
     let remote = parent.childNodes[3].textContent;
     let last_timestamp = parent.childNodes[5].textContent;
     let last_mesg = parent.childNodes[7].textContent;
-    // let last_time = parent.getElementsByTagName("last_time").textContent;
-    // let last_mesg = parent.getElementsByTagName("last_mesg").textContent;
     appendDataElement.insertAdjacentHTML("afterend", 
       `<div>
       <button id="searchresult${i}" type="button" class="btn btn-secondary btn-lg btn-block">${remote} : Last Message: ${last_mesg} at ${last_timestamp}</button>
@@ -48,10 +66,6 @@ function parseViaSession(xmlData) {
 }
 
 var createConversationLinks = function(conversationList) {
-
-  // let conversationValues = conversationList.values();
-
-
   for (let i=0; i<conversationList.length;i++) {
     document.querySelector(`#searchresult${i}`).addEventListener("click", (e) => {
       e.preventDefault();
@@ -64,7 +78,7 @@ var createConversationLinks = function(conversationList) {
 
 
 const checkRemotepath = function(remotepath) {
-  if (remotepath == '') {return ``} else {return `Link to Media: ${remotepath}`}
+  if (remotepath == '') {return ``} else {return `This message contained a media file. Click <a href="${remotepath}">here</a> to view.`}
 };
 
 const msgDataNewWindow = function(messageXMLData) {
@@ -105,35 +119,18 @@ const msgDataNewWindow = function(messageXMLData) {
     let appendHTMLData = `
     <div class="card text-break">
     <div class="cart-body">
-      <p class="text-start fs-3 fw-semibold">${from_num ? `${from_num}` : `${from_uid}`} to ${term_num ? `${term_num}` : `${term_uid}`}</p>
-      <p class="fs-4 fw-normal">${msgtext} <span class="fw-light">${timestamp}</span></p>
+      <p class="text-start fs-3 fw-bold" style="font-weight:bold;">${from_num ? `${from_num}` : `${from_uid}`} to ${term_num ? `${term_num}` : `${term_uid}`} <span class="fw-light" style="font-weight: bolder;"> at ${timestamp}</span></p>
+      <p class="fs-4 fw-bold">${msgtext}</p>
       ${checkRemotepath(remotepath)}
     </div>
     </div> </br>
     `;
     msgDataHTML += appendHTMLData;
-    // let timestampHTML = document.createTextNode(timestamp);
-    // div.appendChild(timestampHTML);
   }
 
-  console.log(msgDataHTML);
-  var win = window.open("", "_blank", "width=100%, height=100%, top=100%, left=100%");
-  var winScript = document.createElement('script');
-  var winScript2 = document.createElement('script');
-  winScript.src = "https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js";
-  winScript.integrity = "sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q";
-  winScript.crossOrigin = "anonymous";
-  winScript2.src = "https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js";
-  winScript2.integrity = "sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl";
-  winScript2.crossOrigin = "anonymous";
-  // var winStylesheet = document.createElement('link');
-  // winStylesheet.rel = 'stylesheet';
-  // winStylesheet.href = 'https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css'
-  win.document.body.innerHTML = msgDataHTML;
-
-  // win.appendChild(winScript);
-  // win.appendChild(winScript2);
-
+  // console.log(msgDataHTML);
+  var win = window.open("", "_blank");
+  win.document.body.innerHTML = (msgDataHTML + `<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>`);
 }
 
 
@@ -153,7 +150,7 @@ var goToConversation = function(session_id) {
   console.log(session_id);
   let msgReqBody = `{"domain": "${domainInput.value}", "user":"${userInput.value}", "session_id": "${session_id}", "limit":"1000"}`;
   msghttp.open("POST", "https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=message&action=read");
-  msghttp.setRequestHeader("Authorization", "Bearer 678dae1ef391e82ff73583219608a340");
+  msghttp.setRequestHeader("Authorization", `Bearer ${checkNSAccess(ns_access)}`);
   msghttp.send(msgReqBody);
 }
 
@@ -174,7 +171,7 @@ xhttp.onreadystatechange = function() {
 
 function fetchData() {
   xhttp.open("POST", url);
-  xhttp.setRequestHeader("Authorization", "Bearer 678dae1ef391e82ff73583219608a340");
+  xhttp.setRequestHeader("Authorization", `Bearer ${checkNSAccess(ns_access)}`);
   xhttp.send(reqbody);
 }
 
