@@ -118,7 +118,7 @@ const msgDataNewWindow = function(messageXMLData) {
     
     let appendHTMLData = `
     <div class="card text-break">
-    <div class="cart-body">
+    <div class="card-body">
       <p class="text-start fs-3 fw-bold" style="font-weight:bold;">${from_num ? `${from_num}` : `${from_uid}`} to ${term_num ? `${term_num}` : `${term_uid}`} <span class="fw-light" style="font-weight: bolder;"> at ${timestamp}</span></p>
       <p class="fs-4 fw-bold">${msgtext}</p>
       ${checkRemotepath(remotepath)}
@@ -128,9 +128,37 @@ const msgDataNewWindow = function(messageXMLData) {
     msgDataHTML += appendHTMLData;
   }
 
+  var script = document.createElement('script');
+  var htmlText = document.createTextNode(`
+  const downloadbtn = document.querySelector("#downloadbtn");
+  const downloadFunction = function() {
+    const html = document.querySelector('body').innerText;
+    const blobData = new Blob([html], {type: 'text/plain;charset=utf-8'});
+
+    let blobURL = URL.createObjectURL(blobData);
+
+    const anchor = document.createElement('a');
+    anchor.href = blobURL;
+    anchor.target = "_blank";
+    anchor.download = "";
+
+    anchor.click();
+
+    URL.revokeObjectURL(blobURL);
+  }
+  downloadbtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    downloadFunction();
+  });
+  `);
+  script.type = 'text/javascript';
+  // script.src = '/js/messagedownload.js';
+  script.appendChild(htmlText);
+  // msgDataHTML += script;
   // console.log(msgDataHTML);
   var win = window.open("", "_blank");
-  win.document.body.innerHTML = (msgDataHTML + `<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>`);
+  win.document.body.innerHTML = (`<button id="downloadbtn" class="btn btn-primary">Click to Download SMS Conversation</button><br />`+ msgDataHTML + `<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>`);
+  win.document.body.appendChild(script);
 }
 
 
