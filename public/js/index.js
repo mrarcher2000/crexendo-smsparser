@@ -5,6 +5,11 @@ const appendDataElement = document.querySelector('#appendData');
 var domainInput = document.querySelector('#domain');
 var userInput = document.querySelector('#user');
 var formData = document.querySelector('#userData');
+var loginFormUser = document.querySelector('#loginFormUser');
+var loginFormPassword = document.querySelector('#loginFormPassword');
+var loginFormSubmit = document.querySelector('#loginFormSubmit');
+var loginFormModal = new bootstrap.Modal(document.querySelector('#modalLoginForm'));
+// var loginFormModal = document.querySelector('#modalLoginForm');
 
 let url = 'https://crexendo-core-021-las.cls.iaas.run/ns-api/?object=conversation&action=read';
 
@@ -12,14 +17,43 @@ var reqbody = '{"domain":"Archer_Nicholson_Lab","user":"100"}';
 
 var ns_access = "";
 window.onload = function() {
-  const response = fetch(`https://crexendo-core-021-las.cls.iaas.run/ns-api/oauth2/token/?grant_type=password&client_id=archertest&client_secret=90056b1f11f8c87fff30fd1b5acafd04&username=anicholson@crexendo.com&password=Crexendo2022!`, {
+  loginFormModal.show();
+  loginFormSubmit.focus();
+  loginFormPassword.focus();
+
+  loginFormSubmit.addEventListener("click", (e) => {
+    e.preventDefault();
+    
+  const response = fetch(`https://crexendo-core-021-las.cls.iaas.run/ns-api/oauth2/token/?grant_type=password&client_id=archertest&client_secret=90056b1f11f8c87fff30fd1b5acafd04&username=${loginFormUser.value}&password=${loginFormPassword.value}`, {
     method: "POST",
   })
   .then((response) => response.json())
   .then((response) => {
-    ns_access = response.access_token;
-    console.log('Access Token Received from Netsapiens Server');
+    if (response.access_token) {
+      ns_access = response.access_token;
+      console.log('Access Token Received from Netsapiens Server');
+      loginFormModal.hide();
+    } else {
+      let incorrectLoginFunc = function() {
+        alert('Incorrect Username or Password! Please try again');
+        window.location.reload();
+      };
+      setTimeout(incorrectLoginFunc(), 5000);
+    }
   })
+  .catch(function() {
+    alert('Incorrect Username or Password!');
+  });
+  });
+
+  // const response = fetch(`https://crexendo-core-021-las.cls.iaas.run/ns-api/oauth2/token/?grant_type=password&client_id=archertest&client_secret=90056b1f11f8c87fff30fd1b5acafd04&username=anicholson@crexendo.com&password=Crexendo2022!`, {
+  //   method: "POST",
+  // })
+  // .then((response) => response.json())
+  // .then((response) => {
+  //   ns_access = response.access_token;
+  //   console.log('Access Token Received from Netsapiens Server');
+  // })
 };
 
 var checkNSAccess = function(NSAccess) {
