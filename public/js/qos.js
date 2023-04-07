@@ -55,6 +55,7 @@ dHTTP.onreadystatechange = function() {
 // }
 
 
+
 const sendQosRequest = function(qosBody) {
     const qosHTTP = new XMLHttpRequest;
     qosHTTP.open("POST", "https://crexendo-ndp-021-las.cls.iaas.run/ns-api/?object=cdr2&action=read&qos=yes");
@@ -63,6 +64,10 @@ const sendQosRequest = function(qosBody) {
     qosHTTP.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             console.log(qosHTTP.responseXML);
+            let cdrDoc = qosHTTP.responseXML.firstChild;
+            
+            // NPM I @JSON2CSV/PLAINJS HAS BEEN COMPLETE. NEED TO FORMAT AND AND SEND INFO TO CSV USING NPM PACKAGE
+
         // } else {
             // console.log('The QOS Report could not be ran at this time.')
         }
