@@ -28,7 +28,7 @@ window.onload = function() {
 
 // New XML HTTP Request to pull CDR Information from Server
 const dHTTP = new XMLHttpRequest;
-const qosHTTP = new XMLHttpRequest;
+// const qosHTTP = new XMLHttpRequest;
 
 const dataXMLRequest = function (requestBody) {
     dHTTP.open("POST", "https://crexendo-ndp-021-las.cls.iaas.run/ns-api/?object=cdr2&action=read");
@@ -46,19 +46,27 @@ dHTTP.onreadystatechange = function() {
     }
 };
 
-qosHTTP.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        console.log(qosHTTP.responseXML);
-    // } else {
-        // console.log('The QOS Report could not be ran at this time.')
-    }
-}
+// qosHTTP.onreadystatechange = function() { 
+//     if (this.readyState == 4 && this.status == 200) {
+//         console.log(qosHTTP.responseXML);
+//     // } else {
+//         // console.log('The QOS Report could not be ran at this time.')
+//     }
+// }
 
 
 const sendQosRequest = function(qosBody) {
+    const qosHTTP = new XMLHttpRequest;
     qosHTTP.open("POST", "https://crexendo-ndp-021-las.cls.iaas.run/ns-api/?object=cdr2&action=read&qos=yes");
     qosHTTP.setRequestHeader("Authorization", `Bearer ${ns_access}`);
     qosHTTP.send(qosBody);
+    qosHTTP.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            console.log(qosHTTP.responseXML);
+        // } else {
+            // console.log('The QOS Report could not be ran at this time.')
+        }
+    }
 }
 
 var qosQueue = [];
@@ -87,9 +95,9 @@ const parseCDR = function(responseXML) {
                 }
                 `;
     
-                // TO DO::: FIGURE OUT HOW TO RUN EACH REPORT ONE AT A TIME SO WE DON'T OVERWRITE THE ORIGINAL REQUEST FOR QOS DATA
                 console.log(`parseCDR() parsed the qosBody parameter as ${qosBody}`);
-                sendQosRequest(qosBody);            
+                // setTimeout(sendQosRequest(qosBody), 1000); Removed for speed and have found better arrangement for the new XMLHttpRequest's
+                sendQosRequest(qosBody);
         }
 }
 
