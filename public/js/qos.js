@@ -40,7 +40,7 @@ dHTTP.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
         console.log(dHTTP.responseXML);
         let serverResponse = dHTTP.responseXML;
-        parseCDR(serverResponse);
+        parseCDR(serverResponse).then(generateCSV(qosData));
     } else {
         console.log('An error occurred when trying to find the CDR Information');
     }
@@ -53,25 +53,101 @@ dHTTP.onreadystatechange = function() {
 //         // console.log('The QOS Report could not be ran at this time.')
 //     }
 // }
+var qosData = [];
+
+const generateCSV = function (qosData) {
+    console.log(qosData);
+    // try {
+    //     const parser = new Parser();
+    //     const csvData = parser.parse(qosData);
+    //     console.log(csv);
+    // } catch (err) {
+    //     console.log(err);
+    // }
+        var csvHeaders = Object.keys(qosData[0]).toString();
+        console.log(csvHeaders);
+
+        var csvData = qosData.map((item) => {
+            return Object.values(item).toString();
+        });
+
+        var csv = [csvHeaders, ...csvData].join('\n');
+        downloadCSV(csv);
+    
+}
 
 
+const downloadCSV = function(csv) {
+
+    const csvBlob = new Blob([csv], { type: 'application/csv' });
+    const url = URL.createObjectURL(csvBlob);
+    var csvAnchor = document.createElement('a');
+    csvAnchor.download = 'qos-report.csv';
+    csvAnchor.href = url;
+    csvAnchor.style.display = 'none';
+
+    document.body.appendChild(csvAnchor);
+    csvAnchor.click();
+    csvAnchor.remove();
+    URL.revokeObjectURL(url);
+}
 
 const sendQosRequest = function(qosBody) {
     const qosHTTP = new XMLHttpRequest;
     qosHTTP.open("POST", "https://crexendo-ndp-021-las.cls.iaas.run/ns-api/?object=cdr2&action=read&qos=yes");
     qosHTTP.setRequestHeader("Authorization", `Bearer ${ns_access}`);
     qosHTTP.send(qosBody);
-    qosHTTP.onreadystatechange = function() {
+    qosHTTP.onreadystatechange = function () {   // testing if promise will resolve multiple csv files. if not, revert to '= function() {'
         if (this.readyState == 4 && this.status == 200) {
-            console.log(qosHTTP.responseXML);
+            // console.log(qosHTTP.responseXML);
             let cdrDoc = qosHTTP.responseXML.firstChild;
-            
-            // NPM I @JSON2CSV/PLAINJS HAS BEEN COMPLETE. NEED TO FORMAT AND AND SEND INFO TO CSV USING NPM PACKAGE
+            if (cdrDoc.hasChildNodes('qos_orig')) {
+                let calldate = cdrDoc.childNodes[0].childNodes[22].childNodes[1].textContent;
+                let duration = cdrDoc.childNodes[0].childNodes[22].childNodes[3].textContent;
+                let aMosScore = cdrDoc.childNodes[0].childNodes[22].childNodes[5].textContent;
+                let bMosScore = cdrDoc.childNodes[0].childNodes[22].childNodes[4].textContent;
+                let caller = cdrDoc.childNodes[0].childNodes[22].childNodes[8].textContent
+                let called = cdrDoc.childNodes[0].childNodes[22].childNodes[9].textContent;
+                let aJitter = cdrDoc.childNodes[0].childNodes[22].childNodes[12].textContent;
+                let bJitter = cdrDoc.childNodes[0].childNodes[22].childNodes[13].textContent;
+                let aPacketLoss = cdrDoc.childNodes[0].childNodes[22].childNodes[14].textContent;
+                let bPacketLoss = cdrDoc.childNodes[0].childNodes[22].childNodes[15].textContent;
+                let aRTCPJitter = cdrDoc.childNodes[0].childNodes[22].childNodes[16].textContent;
+                let bRTCPJitter = cdrDoc.childNodes[0].childNodes[22].childNodes[17].textContent;
+                // console.log(cdrDoc.childNodes[0].childNodes[22].childNodes[1].textContent + " is the calldate");
 
-        // } else {
-            // console.log('The QOS Report could not be ran at this time.')
-        }
+                aMosScore = Number(aMosScore) / 10;
+                bMosScore = Number(bMosScore)/10;
+                aJitter = Number(aJitter)/10;
+                bJitter = Number(bJitter)/10;
+                aPacketLoss = Number(aPacketLoss)/10;
+                bPacketLoss = Number(bPacketLoss)/10;
+                aRTCPJitter = Number(aRTCPJitter)/10;
+                bRTCPJitter = Number(bRTCPJitter)/10;
+
+
+                let singleQOS = {
+                    "Call Time": `${calldate}`,
+                    "Call Duration": `${duration}`,
+                    "Caller": `${caller}`,
+                    "Caller MOS Score": `${aMosScore}`,
+                    "Caller Jitter": `${aJitter}`,
+                    "Caller RTCP Jitter": `${aRTCPJitter}`,
+                    "Caller Packet Loss": `${aPacketLoss}`,
+                    "Dialed Number": `${called}`,
+                    "Dialed MOS Score": `${bMosScore}`,
+                    "Dialed Jitter": `${bJitter}`,
+                    "Dialed RTCP Jitter": `${bRTCPJitter}`,
+                    "Dialed Packet Loss": `${bPacketLoss}`
+                };
+
+                qosData.push(singleQOS);
+            }
+            // generateCSV(qosData);
+        }    
+        generateCSV(qosData); // TO DO: FIGURE OUT HOW TO ONLY GENERATE CSV AFTER ALL INFO HAS BEEN PUSHED TO qosData ARRAY
     }
+    // generateCSV(qosData);
 }
 
 var qosQueue = [];
@@ -90,7 +166,7 @@ const parseCDR = function(responseXML) {
     let endYear = selectTimeEndYear.value.trim();
     let domainInput = domain.value.trim();
 
-        for (i=0; i < callIdList.length; i++) {
+            for (i=0; i < callIdList.length; i++) {
                 let qosBody = `
                 {
                     "start_date": "${startYear}-${startMonth}-${startDay}",
@@ -102,8 +178,9 @@ const parseCDR = function(responseXML) {
     
                 console.log(`parseCDR() parsed the qosBody parameter as ${qosBody}`);
                 // setTimeout(sendQosRequest(qosBody), 1000); Removed for speed and have found better arrangement for the new XMLHttpRequest's
+                // debugger;
                 sendQosRequest(qosBody);
-        }
+            }
 }
 
 
