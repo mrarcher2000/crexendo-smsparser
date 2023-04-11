@@ -40,7 +40,8 @@ dHTTP.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
         console.log(dHTTP.responseXML);
         let serverResponse = dHTTP.responseXML;
-        parseCDR(serverResponse).then(generateCSV(qosData));
+        // debugger;
+        parseCDR(serverResponse);
     } else {
         console.log('An error occurred when trying to find the CDR Information');
     }
@@ -54,9 +55,14 @@ dHTTP.onreadystatechange = function() {
 //     }
 // }
 var qosData = [];
+var callCounter = 0;
+var callReportCount = 0;
+var reportDownloadCounter = 0;
 
-const generateCSV = function (qosData) {
+const generateCSV = function (qosData, callReportCount, reportDownloadCounter) {
     console.log(qosData);
+    console.log(callReportCount + ` and the qosData length is ${qosData.length}`);
+    // console.log(callReportCount);
     // try {
     //     const parser = new Parser();
     //     const csvData = parser.parse(qosData);
@@ -64,6 +70,9 @@ const generateCSV = function (qosData) {
     // } catch (err) {
     //     console.log(err);
     // }
+
+    // TEST QOSDATA WITHOUT THE [0]. IF NOT WORKING CHANGE BACK TO : var csvHeaders = Object.keys(qosData[0]).toString();
+    if ((callReportCount - 1) == qosData.length || qosData.length == 500) {
         var csvHeaders = Object.keys(qosData[0]).toString();
         console.log(csvHeaders);
 
@@ -72,12 +81,18 @@ const generateCSV = function (qosData) {
         });
 
         var csv = [csvHeaders, ...csvData].join('\n');
-        downloadCSV(csv);
+        if (reportDownloadCounter == 0) {
+            downloadCSV(csv);
+        } else {
+            console.log('Report has been downloaded');
+        }
+    }
     
 }
 
 
 const downloadCSV = function(csv) {
+    reportDownloadCounter++;
 
     const csvBlob = new Blob([csv], { type: 'application/csv' });
     const url = URL.createObjectURL(csvBlob);
@@ -97,7 +112,7 @@ const sendQosRequest = function(qosBody) {
     qosHTTP.open("POST", "https://crexendo-ndp-021-las.cls.iaas.run/ns-api/?object=cdr2&action=read&qos=yes");
     qosHTTP.setRequestHeader("Authorization", `Bearer ${ns_access}`);
     qosHTTP.send(qosBody);
-    qosHTTP.onreadystatechange = function () {   // testing if promise will resolve multiple csv files. if not, revert to '= function() {'
+    qosHTTP.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             // console.log(qosHTTP.responseXML);
             let cdrDoc = qosHTTP.responseXML.firstChild;
@@ -145,7 +160,7 @@ const sendQosRequest = function(qosBody) {
             }
             // generateCSV(qosData);
         }    
-        generateCSV(qosData); // TO DO: FIGURE OUT HOW TO ONLY GENERATE CSV AFTER ALL INFO HAS BEEN PUSHED TO qosData ARRAY
+        generateCSV(qosData, callReportCount, reportDownloadCounter);
     }
     // generateCSV(qosData);
 }
@@ -156,6 +171,8 @@ const parseCDR = function(responseXML) {
     // responseXML = responseXML;
     console.log("parseCDR() is now showing responseXML as " + responseXML.firstChild.textContent);
     let callIdList = responseXML.firstChild.getElementsByTagName('cdr_id');
+    callReportCount = callIdList.length;
+    console.log(callIdList.length);
     console.log(`callIdList is ${callIdList[0].textContent}`);
 
     let startMonth = selectTimeStartMonth.value.trim();
@@ -179,8 +196,19 @@ const parseCDR = function(responseXML) {
                 console.log(`parseCDR() parsed the qosBody parameter as ${qosBody}`);
                 // setTimeout(sendQosRequest(qosBody), 1000); Removed for speed and have found better arrangement for the new XMLHttpRequest's
                 // debugger;
+                // if (callCounter == (callIdList.length)) {
+                //     console.log('qosData in parseCDR() shows as ' + qosData);
+                //     setTimeout(generateCSV(qosData), 5000);
+                // } else {
+                //     callCounter++;
+                //     console.log(callCounter);
+                //     sendQosRequest(qosBody);
+                // }
+                callCounter++;
                 sendQosRequest(qosBody);
+                
             }
+            // generateCSV(qosData);
 }
 
 
