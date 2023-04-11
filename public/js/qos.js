@@ -59,9 +59,9 @@ var callCounter = 0;
 var callReportCount = 0;
 var reportDownloadCounter = 0;
 
-const generateCSV = function (qosData, callReportCount, reportDownloadCounter) {
+const generateCSV = function (qosData, callReportCount, reportDownloadCounter, callCounter) {
     console.log(qosData);
-    console.log(callReportCount + ` and the qosData length is ${qosData.length}`);
+    console.log(callReportCount + ` is the callReportCount and the qosData length is ${qosData.length} and callCounter is ${callCounter}`);
     // console.log(callReportCount);
     // try {
     //     const parser = new Parser();
@@ -72,7 +72,7 @@ const generateCSV = function (qosData, callReportCount, reportDownloadCounter) {
     // }
 
     // TEST QOSDATA WITHOUT THE [0]. IF NOT WORKING CHANGE BACK TO : var csvHeaders = Object.keys(qosData[0]).toString();
-    if ((callReportCount - 1) == qosData.length || qosData.length == 500) {
+    if ((callReportCount) == qosData.length || qosData.length == 500) {
         var csvHeaders = Object.keys(qosData[0]).toString();
         console.log(csvHeaders);
 
@@ -116,7 +116,7 @@ const sendQosRequest = function(qosBody) {
         if (this.readyState == 4 && this.status == 200) {
             // console.log(qosHTTP.responseXML);
             let cdrDoc = qosHTTP.responseXML.firstChild;
-            if (cdrDoc.hasChildNodes('qos_orig')) {
+            if (cdrDoc.childNodes[0].childNodes[22]) {     // testing change from if (cdrDoc.hasChildNodes('qos_orig')) { to if they have they have any child nodes
                 let calldate = cdrDoc.childNodes[0].childNodes[22].childNodes[1].textContent;
                 let duration = cdrDoc.childNodes[0].childNodes[22].childNodes[3].textContent;
                 let aMosScore = cdrDoc.childNodes[0].childNodes[22].childNodes[5].textContent;
@@ -157,10 +157,14 @@ const sendQosRequest = function(qosBody) {
                 };
 
                 qosData.push(singleQOS);
+            } else {
+                console.log('No qos_orig found');
+                let singleQOS = {};
+                qosData.push(singleQOS);
             }
             // generateCSV(qosData);
         }    
-        generateCSV(qosData, callReportCount, reportDownloadCounter);
+        generateCSV(qosData, callReportCount, reportDownloadCounter, callCounter);
     }
     // generateCSV(qosData);
 }
