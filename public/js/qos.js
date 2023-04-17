@@ -140,9 +140,12 @@ const sendQosRequest = function(qosBody) {
                 aRTCPJitter = Number(aRTCPJitter)/10;
                 bRTCPJitter = Number(bRTCPJitter)/10;
 
+                var parsedCallDate = new Date(`${calldate}`);
+                var callDateInfo = `${parsedCallDate.toLocaleDateString()} ${parsedCallDate.toLocaleTimeString()}`;
+
 
                 let singleQOS = {
-                    "Call Time": `${calldate}`,
+                    "Call Time": `${callDateInfo}`,
                     "Call Duration": `${duration}`,
                     "Caller": `${caller}`,
                     "Caller MOS Score": `${aMosScore}`,
@@ -158,8 +161,43 @@ const sendQosRequest = function(qosBody) {
 
                 qosData.push(singleQOS);
             } else {
-                console.log('No qos_orig found');
-                let singleQOS = {};
+                let callTime = cdrDoc.childNodes[0].childNodes[13].textContent;
+                let duration = cdrDoc.childNodes[0].childNodes[16].textContent;
+                let caller = cdrDoc.childNodes[0].childNodes[4].textContent;
+                let called = cdrDoc.childNodes[0].childNodes[7].textContent;
+
+                let parsedDate = new Date(0);
+                parsedDate.setUTCSeconds(Number(callTime));
+                var parsedHours;
+                if (Number(parsedDate.getHours()) > 12) {
+                    parsedHours = parsedDate.getHours() - 12;
+                } else {
+                    parsedHours = parsedDate.getHours();
+                }
+                var parsedMinutes;
+                if (Number(parsedDate.getMinutes()) < 10) {
+                    parsedMinutes = `0${Number(parsedDate.getMinutes())}`
+                } else {
+                    parsedMinutes = parsedDate.getMinutes();
+                }
+                parsedDate = `${(parsedDate.getMonth()) + 1}/${parsedDate.getDate()}/${parsedDate.getFullYear()} ${parsedHours}:${parsedMinutes}:${parsedDate.getSeconds()}`;
+                // parsedDate = parsedDate.toUTCString();
+
+                console.log('No qos_orig found. Call Info: ' + parsedDate);
+                let singleQOS = {
+                    "Call Time": `${parsedDate}`,
+                    "Call Duration": `${duration}`,
+                    "Caller": `${caller}`,
+                    "Caller MOS Score": ``,
+                    "Caller Jitter": ``,
+                    "Caller RTCP Jitter": ``,
+                    "Caller Packet Loss": ``,
+                    "Dialed Number": `${called}`,
+                    "Dialed MOS Score": ``,
+                    "Dialed Jitter": ``,
+                    "Dialed RTCP Jitter": ``,
+                    "Dialed Packet Loss": ``
+                };
                 qosData.push(singleQOS);
             }
             // generateCSV(qosData);
