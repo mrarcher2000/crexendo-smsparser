@@ -2,6 +2,7 @@
 // const fetch = require('node-fetch');
 const rawXMLElement = document.querySelector('#rawXMLElement');
 const appendDataElement = document.querySelector('#appendData');
+const appendErrorElement = document.querySelector('#appendError');
 var domainInput = document.querySelector('#domain');
 var userInput = document.querySelector('#user');
 var formData = document.querySelector('#userData');
@@ -219,6 +220,7 @@ var goToConversation = function(session_id) {
 
 xhttp.onreadystatechange = function() {
   if (this.readyState == 4 && this.status == 200) {
+    appendErrorElement.innerHTML = '';
     console.log(xhttp.responseXML);
     if (xhttp.responseXML.getElementsByTagName("session_id")) {
       xmlData = xhttp.responseXML.getElementsByTagName("session_id");
@@ -228,6 +230,9 @@ xhttp.onreadystatechange = function() {
     else {
       console.log("No SMS or Chat Sessions Found!");
     };
+  } else if (this.readyState == 4 && this.status !== 200) {
+    console.log("Status: "+ xhttp.status + "\n Error:" + xhttp.responseText);
+    appendErrorElement.innerHTML = `<p class='text-danger'>Error! Status: ${xhttp.status}</p>`;
   };
 };
 
