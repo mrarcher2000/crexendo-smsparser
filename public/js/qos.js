@@ -6,7 +6,8 @@ const selectTimeEndDay = document.querySelector('#selectTimeEndDay');
 const selectTimeEndYear = document.querySelector('#selectTimeEndYear');
 const domain = document.querySelector('#domain');
 const cdrsubmit = document.querySelector('#cdrsubmit');
-
+const errorBlockElement = document.querySelector('#error-block');
+const successBlockElement = document.querySelector('#success-block');
 
 var ns_access = "";
 
@@ -212,6 +213,14 @@ var qosQueue = [];
 const parseCDR = function(responseXML) {
     // responseXML = responseXML;
     console.log("parseCDR() is now showing responseXML as " + responseXML.firstChild.textContent);
+    if (!responseXML.firstChild.textContent) {
+        errorBlockElement.style.display = "inline";
+        successBlockElement.style.display = "none";
+    }
+    if (responseXML.firstChild.textContent) {
+        errorBlockElement.style.display="none";
+        successBlockElement.style.display="inline";
+    }
     let callIdList = responseXML.firstChild.getElementsByTagName('cdr_id');
     callReportCount = callIdList.length;
     console.log(callIdList.length);
