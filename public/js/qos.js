@@ -78,6 +78,9 @@ dHTTP.onreadystatechange = function() {
         parseCDR(serverResponse);
     } else {
         console.log('An error occurred when trying to find the CDR Information');
+        errorBlockElement.style.display = "inline";
+        errorBlockElement.innerHTML = 'Error! Please refresh the page before retrying.'
+        successBlockElement.style.display = "none";
     }
 };
 
