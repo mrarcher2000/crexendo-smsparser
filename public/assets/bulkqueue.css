@@ -1,0 +1,33 @@
+.form-text {
+    display: inline;
+}
+
+
+.form-textinput {
+    display: inline;
+    margin-top: 10px;
+    width: fit-content;
+}
+
+
+.form-checkbox {
+    margin: 10px;
+}
+
+
+.checkbox-group {
+    display: flex; 
+    width: 60%; 
+    flex-wrap: wrap;
+}
+
+
+#orderedRingDiv {
+    display: none;
+}
+
+
+.submit-button {
+    margin-top: 50px;
+    margin-bottom: 10px;
+}
