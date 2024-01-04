@@ -78,6 +78,9 @@ dHTTP.onreadystatechange = function() {
         parseCDR(serverResponse);
     } else {
         console.log('An error occurred when trying to find the CDR Information');
+        errorBlockElement.style.display = "inline";
+        errorBlockElement.innerHTML = '<p class="badge rounded-pill text-bg-danger" style="background-color:red; color: white;">Error! Invalid Login. Please refresh the page and try again.</p>'
+        successBlockElement.style.display = "none";
     }
 };
 

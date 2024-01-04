@@ -79,7 +79,7 @@ function parseViaSession(xmlData) {
     let last_mesg = parent.childNodes[7].textContent;
     appendDataElement.insertAdjacentHTML("afterend", 
       `<div>
-      <button id="searchresult${i}" type="button" class="btn btn-secondary btn-lg btn-block">${remote} : ${last_mesg} at ${last_timestamp}</button>
+      <button id="searchresult${i}" type="button" class="btn btn-secondary btn-lg btn-block" style="background-color:#0080be!important">${remote} : ${last_mesg} at ${last_timestamp}</button>
       <p class="text-center" style="font-weight:600;">| ${remote} | <span style="font-weight:200;">Last Message: ${last_mesg} at ${last_timestamp}</span></p>
       <br />`
     );
